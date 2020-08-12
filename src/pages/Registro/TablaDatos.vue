@@ -135,6 +135,16 @@
         <EditarRegistro :info="jsonEnviar" :idRegistro="idRegistro" />
       </q-card>
     </q-dialog>
+    <q-dialog v-model="mapaaa">
+      <div class="">
+        <div class="q-pt-sm">
+          <VerMapa :info="jsonEnviar.latRecojo" />
+        </div>
+        <div class="q-pt-sm">
+          <VerMapa :info="jsonEnviar.latEntrega" />
+        </div>
+      </div>
+    </q-dialog>
   </div>
 </template>
 
@@ -160,7 +170,8 @@ export default {
     EditarRegistro: () => import("pages/Registro/EditarRegistro"),
     DialogDetalle: () => import("../../components/detallePaquete"),
     DialogAsing: () => import("../../components/DialogAsignar"),
-    Imprimir: () => import("components/Imprimir")
+    Imprimir: () => import("components/Imprimir"),
+    VerMapa: () => import("components/VerMapa")
   },
   computed: {
     ...mapGetters("users", ["getUsers"]),
@@ -216,6 +227,7 @@ export default {
   },
   data() {
     return {
+      mapaaa: false,
       infoDate: [],
       editarinfo: false,
       opciones: false,
@@ -248,9 +260,10 @@ export default {
       console.log(val);
       this.jsonEnviar = val;
       this.idRegistro = val.registro;
-      if (this.accionTabla) {
-        this.opciones = true;
-      }
+      this.mapaaa = true;
+      // if (this.accionTabla) {
+      //   this.opciones = true;
+      // }
       // this.$refs.imprimir.activar();
     },
     onReset() {},
@@ -315,7 +328,13 @@ export default {
       // console.log(search);
       if (!search.length) return list;
       // return list.filter(item => item.registro == id);
-      return list.filter(item => item.registro.toString().toLowerCase().indexOf(search) > -1);
+      return list.filter(
+        item =>
+          item.registro
+            .toString()
+            .toLowerCase()
+            .indexOf(search) > -1
+      );
       // return list.filter((id) => id > 0 && id % parseInt(id) === 0 ).map( (id) => Math.pow(id, 5));
     },
     getByStatus(list, status) {

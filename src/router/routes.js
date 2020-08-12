@@ -10,6 +10,10 @@ const routes = [
         component: () => import("pages/Registro/Index.vue")
       },
       {
+        path: "gps",
+        component: () => import("pages/GPS/Index.vue")
+      },
+      {
         path: "/registrar",
         component: () => import("pages/Registro/Registro.vue")
       },

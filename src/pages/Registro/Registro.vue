@@ -16,32 +16,6 @@
         </q-item>
         <q-item>
           <q-item-section>
-            <q-select
-              autofocus
-              dense
-              options-dense
-              standout="bg-primary-5 text-white"
-              v-model="jsonEnviar.comuna"
-              :rules="[val => !!val || 'Compro obligatorio']"
-              :options="options"
-              use-input
-              hide-selected
-              fill-input
-              @filter="filterFnComuna"
-              @filter-abort="abortFilterFn"
-              input-debounce="0"
-              label="Comuna"
-            >
-              <template v-slot:no-option>
-                <q-item>
-                  <q-item-section class="text-grey">No results</q-item-section>
-                </q-item>
-              </template>
-            </q-select>
-          </q-item-section>
-        </q-item>
-        <q-item>
-          <q-item-section>
             <q-input
               dense
               autocomplete="ÑÖcompletes"
@@ -108,58 +82,14 @@
             />
           </q-item-section>
         </q-item>
-        <!--        {{ optionsProvee }}-->
-        <q-item>
+        <q-item class="justify-center">
           <q-item-section>
-            <q-select
-              dense
-              options-dense
-              standout="bg-primary-5 text-white"
-              v-model="jsonEnviar.proveedores"
-              ref="reset"
-              :rules="[val => !!val || 'Compro obligatorio']"
-              @filter="filterFnProvee"
-              use-input
-              hide-selected
-              fill-input
-              input-debounce="0"
-              :options="optionsProvee"
-              option-value="name"
-              option-label="name"
-              emit-value
-              map-options
-              label="Proveedores"
-            />
+            <Recojo />
           </q-item-section>
-          <!--          <q-item-section side>-->
-          <!--            <q-btn icon="add" @click="addProvee = true" color="green" class="q-mb-lg"></q-btn>-->
-          <!--          </q-item-section>-->
         </q-item>
-        <q-item>
+        <q-item class="justify-center">
           <q-item-section>
-            <q-input
-              dense
-              autocomplete="ÑÖcompletes"
-              standout="bg-primary-5 text-white"
-              v-model="jsonEnviar.valordeflete"
-              ref="reset"
-              label="Valor de Flete"
-              mask="#.##"
-              fill-mask="0"
-              reverse-fill-mask
-              input-class="text-left"
-              :disable="jsonEnviar.tipodepago == 'Pagado'"
-            />
-          </q-item-section>
-          <q-item-section>
-            <q-input
-              dense
-              autocomplete="ÑÖcompletes"
-              standout="bg-primary-5 text-white"
-              v-model="jsonEnviar.control"
-              ref="reset"
-              label="Control"
-            />
+            <Entrega />
           </q-item-section>
         </q-item>
         <q-item>
@@ -227,7 +157,9 @@ export default {
   },
   components: {
     AddProveedor: () => import("components/addProveedor"),
-    Imprimir: () => import("components/Imprimir")
+    Imprimir: () => import("components/Imprimir"),
+    Recojo: () => import("components/gps/Recojo.vue"),
+    Entrega: () => import("components/gps/Entrega.vue")
   },
   data() {
     return {
@@ -417,51 +349,42 @@ export default {
     async guardarRegistro() {},
     imprimir() {},
     async onSubmit() {
-      if (
-        this.jsonEnviar.tipodepago === "Por pagar" &&
-        this.jsonEnviar.valordeflete === "0.00"
-      ) {
-        this.$q.notify({
-          message: `Valor de flete no puede quedar vacio`,
-          color: "red-5",
-          position: "top"
-        });
-      } else {
-        this.loadboton = true;
-        console.log(this.jsonEnviar.tipodepago);
-        this.addRegistro({
-          ...this.jsonEnviar
+      this.loadboton = true;
+      this.addRegistro({
+        ...this.jsonEnviar,
+        latRecojo: this.$store.state.registros.latRecojo,
+        lngRecojo: this.$store.state.registros.lngRecojo,
+        latEntrega: this.$store.state.registros.latEntrega,
+        lngEntrega: this.$store.state.registros.lngEntrega
+      })
+        .then(async res => {
+          console.log("res.data", res);
+          // await this.dataImprimir.push({
+          //   ...this.jsonEnviar,
+          //   registro: res.registro
+          // });
+          // this.jsonImprimir = res.registro;
+          // this.activatIMprimir = true
+          // this.activatIMprimir = true;
+          // this.$refs.imprimir.activar();
+          // this.alert = true;
+          // await this.onReset();
+          // await this.callRegistrosCount();
+          this.loadboton = false;
+          location.reload();
         })
-          .then(async res => {
-            console.log("res.data", res);
-            // await this.dataImprimir.push({
-            //   ...this.jsonEnviar,
-            //   registro: res.registro
-            // });
-            this.jsonImprimir = res.registro;
-            // this.activatIMprimir = true
-            // this.activatIMprimir = true;
-            this.$refs.imprimir.activar();
-            // this.alert = true;
-            // await this.onReset();
-            await this.callRegistrosCount();
-            this.loadboton = false;
-          })
-          .catch(err => {
-            console.log(err);
-            console.log(e);
-            this.$q.notify({
-              message: `Error Controlado`,
-              color: "red-5",
-              position: "top"
-            });
-            this.loadboton = false;
+        .catch(err => {
+          console.log(err);
+          this.$q.notify({
+            message: `Error Controlado`,
+            color: "red-5",
+            position: "top"
           });
-      }
+          this.loadboton = false;
+        });
     },
 
     onReset() {
-      this.$refs.reset.resetValidation();
       this.jsonEnviar.tipodepago = "";
       this.jsonEnviar.control = "";
       this.jsonEnviar.valordeflete = "0.00";
@@ -499,5 +422,15 @@ input:-webkit-autofill:hover,
 input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   -webkit-box-shadow: 0 0 0px 1000px #819fce inset !important;
+}
+#q-app
+  > div
+  > div
+  > div.q-page-container
+  > main
+  > form
+  > div
+  > div.q-item.q-item-type.row.no-wrap.justify-center {
+  text-align: center;
 }
 </style>

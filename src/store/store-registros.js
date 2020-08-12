@@ -3,7 +3,7 @@ import { date } from "quasar";
 
 let timeStamp = Date.now();
 let formattedString = date.formatDate(timeStamp, "DD/MM/YYYY");
-const newDate = date.addToDate(timeStamp, { days: -7})
+const newDate = date.addToDate(timeStamp, { days: -7 });
 let formattedString2 = date.formatDate(newDate, "DD/MM/YYYY");
 // console.log(formattedString2)
 
@@ -19,10 +19,26 @@ const state = {
   ini_date: formattedString,
   fin_date: formattedString,
   ini_date_dash: formattedString2,
-  fin_date_dash: formattedString
+  fin_date_dash: formattedString,
+  latRecojo: null,
+  lngRecojo: null,
+  latEntrega: null,
+  lngEntrega: null
 };
 
 const mutations = {
+  setlatRecojo(state, payload) {
+    state.latRecojo = payload;
+  },
+  setlngRecojo(state, payload) {
+    state.lngRecojo = payload;
+  },
+  setlatEntrega(state, payload) {
+    state.latEntrega = payload;
+  },
+  setlngEntrega(state, payload) {
+    state.lngEntrega = payload;
+  },
   setDashboard(state, payload) {
     state.Dashboard = payload;
   },
@@ -71,7 +87,9 @@ const actions = {
     commit("setHistorico", response.data);
   },
   async setHistorico({ commit }) {
-    const response = await axiosInstance.get(`/reporte/historico?ini_date=${formattedString}`);
+    const response = await axiosInstance.get(
+      `/reporte/historico?ini_date=${formattedString}`
+    );
     return response.data;
   },
   setFechaIni({ commit }, payload) {
